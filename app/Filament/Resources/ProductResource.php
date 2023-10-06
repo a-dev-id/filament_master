@@ -14,6 +14,10 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Collection;
+use Filament\Forms\Set;
+use Illuminate\Support\Str;
+use Filament\Support\RawJs;
 
 use function Laravel\Prompts\select;
 
@@ -21,7 +25,10 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    // protected static ?string $navigationLabel = 'Custom Navigation Label';
+    protected static ?string $navigationGroup = 'Products';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
@@ -30,30 +37,34 @@ class ProductResource extends Resource
                 Forms\Components\Grid::make()->schema([
                     Forms\Components\Section::make('General')->schema([
                         Forms\Components\Grid::make(2)->schema([
-                            Forms\Components\TextInput::make('title'),
+                            Forms\Components\TextInput::make('title')
+                                ->required()
+                                ->live()
+                                ->afterStateUpdated(fn (Set $set, ?string $state) => $set('slug', Str::slug($state))),
                             Forms\Components\TextInput::make('slug')
                         ]),
                         Forms\Components\Grid::make(1)->schema([
+                            Forms\Components\TextInput::make('price'),
                             Forms\Components\RichEditor::make('description'),
                         ]),
                     ])->collapsible()->compact(),
                 ])->columnSpan(2),
-
                 Forms\Components\Grid::make()->schema([
                     Forms\Components\Section::make('Additional')->schema([
                         Forms\Components\Grid::make(1)->schema([
                             Forms\Components\FileUpload::make('image'),
-                            Forms\Components\Select::make('product_category_id')->label('Category')
-                                ->live()
+                            Forms\Components\Select::make('product_category_id')
+                                ->label('Category')
                                 ->required()
-                                ->dehydrated(false)
-                                ->options(ProductCategory::pluck('title', 'id')),
-                            Forms\Components\Select::make('product_sub_category_id')->label('Sub Category')
+                                ->options(ProductCategory::all()->pluck('title', 'id'))
+                                ->searchable()
+                                ->preload(),
+                            Forms\Components\Select::make('product_sub_category_id')
+                                ->label('Sub Category')
                                 ->required()
-                                ->placeholder(fn (Forms\Get $get): string => empty($get('product_category_id')) ? 'First select sub category' : 'Select an option')
-                                ->options(function (Forms\Get $get): Collection {
-                                    return ProductSubCategory::where('product_category_id', $get('product_category_id'))->pluck('title', 'id');
-                                }),
+                                ->options(ProductSubCategory::all()->pluck('title', 'id'))
+                                ->searchable()
+                                ->preload(),
                             Forms\Components\Toggle::make('status'),
                         ]),
                     ])->collapsible()->compact(),
@@ -65,13 +76,18 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('title')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('price')->money('IDR'),
+                Tables\Columns\TextColumn::make('ProductCategory.title')->label('Category')->sortable()->searchable(),
+                Tables\Columns\TextColumn::make('ProductSubCategory.title')->label('Sub Category')->sortable()->searchable(),
+                Tables\Columns\ToggleColumn::make('status')->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

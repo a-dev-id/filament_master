@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('slug')->nullable();
             $table->longText('description')->nullable();
             $table->string('image')->nullable();
-            $table->integer('price')->nullable();
+            $table->string('price')->nullable();
             $table->smallInteger('product_category_id')->nullable()->constrained();
             $table->smallInteger('product_sub_category_id')->nullable()->constrained();
             $table->smallInteger('status')->nullable();
