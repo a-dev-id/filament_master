@@ -56,13 +56,17 @@ class ProductResource extends Resource
                             Forms\Components\Select::make('product_category_id')
                                 ->label('Category')
                                 ->required()
-                                ->options(ProductCategory::all()->pluck('title', 'id'))
+                                ->options(ProductCategory::pluck('title', 'id'))
                                 ->searchable()
-                                ->preload(),
+                                ->preload()
+                                ->live(),
                             Forms\Components\Select::make('product_sub_category_id')
-                                ->label('Sub Category')
                                 ->required()
-                                ->options(ProductSubCategory::all()->pluck('title', 'id'))
+                                ->label('Sub Category')
+                                ->placeholder(fn (Forms\Get $get): string => empty($get('product_category_id')) ? 'First select Category' : 'Select an option')
+                                ->options(function (Forms\Get $get): Collection {
+                                    return ProductSubCategory::where('product_category_id', $get('product_category_id'))->pluck('title', 'id');
+                                })
                                 ->searchable()
                                 ->preload(),
                             Forms\Components\Toggle::make('status'),
