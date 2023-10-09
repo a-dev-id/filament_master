@@ -27,16 +27,5 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Model::unguard();
-
-        Filament::serving(function () {
-            Filament::registerNavigationGroups([
-                NavigationGroup::make()
-                    ->label('Bookings'),
-                NavigationGroup::make()
-                    ->label('Products'),
-                NavigationGroup::make()
-                    ->label('Settings'),
-            ]);
-        });
     }
 }

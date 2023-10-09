@@ -17,7 +17,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\FontProviders\GoogleFontProvider;
+use Filament\Navigation\NavigationGroup;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -61,6 +61,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->spa()
             ->maxContentWidth('full')
-            ->viteTheme('resources/css/filament/admin/theme.css');
+            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Products')
+                    ->icon('heroicon-o-shopping-bag')
+                    ->collapsed(),
+            ]);
     }
 }

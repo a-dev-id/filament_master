@@ -20,7 +20,7 @@ class ProductSubCategoryResource extends Resource
 {
     protected static ?string $model = ProductSubCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-hashtag';
+    // protected static ?string $navigationIcon = 'heroicon-o-hashtag';
     protected static ?string $navigationLabel = 'Sub Categories';
     protected static ?string $navigationGroup = 'Products';
     protected static ?int $navigationSort = 3;
